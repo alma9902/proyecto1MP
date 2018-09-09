@@ -7,18 +7,18 @@ import(
 
 func startServerTest(t *testing.T){
   c1 := programs.ClientManager{
-    clients:   make(map[*Client]bool),
-    broadcast: make(chan []byte),
-    register:  make(chan *Client),
-    unregister:make(chan *Client),
+    Clients:   make(map[*Client]bool),
+    Broadcast: make(chan []byte),
+    Register:  make(chan *Client),
+    Unregister:make(chan *Client),
   }
   listener, error:= net.Listen("tcp" ,":12345")
   defer listener.Close()
   connection,_:=listener.Accept()
   c1.register <- programs.Client{
-    socket:connection,
-    data: "Hola mundo",
-    name: "Alma",
+    Socket:connection,
+    Data: "Hola mundo",
+    Name: "Alma",
   }
   output := c1.programs.Start()
   expected := "La conexión salió bien"

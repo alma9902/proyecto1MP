@@ -9,17 +9,17 @@ import(
 )
 
 type Client struct {
-    socket net.Conn
-    data   chan []byte
-    name string
+    Socket net.Conn
+    Data   chan []byte
+    Name string
 }
 
-func (client *Client) receive() {
+func (client *Client) Receive() {
     for {
         message := make([]byte, 4096)
-        length, err := client.socket.Read(message)
+        length, err := client.Socket.Read(message)
         if err != nil {
-            client.socket.Close()
+            client.Socket.Close()
             break
         }
         if length > 0 {
@@ -34,10 +34,10 @@ func StartClientMode(ip string, port string, name string) {
     if error != nil {
         fmt.Println(error)
     }
-    client := &Client{name: name, socket: connection}
+    client := &Client{Name: name, Socket: connection}
     //client := &Client{socket: connection}
-    fmt.Println(client.name)
-    go client.receive()
+    fmt.Println(client.Name)
+    go client.Receive()
     for {
         reader := bufio.NewReader(os.Stdin)
         message, _ := reader.ReadString('\n')

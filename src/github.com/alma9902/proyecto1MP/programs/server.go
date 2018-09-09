@@ -9,65 +9,65 @@ import (
 
 type ClientManager struct {
     //map[KeyType] valueType
-    clients    map[*Client]bool
+    Clients    map[*Client]bool
     //names      map[*Client]string
-    broadcast  chan []byte
-    register   chan *Client
-    unregister chan *Client
+    Broadcast  chan []byte
+    Register   chan *Client
+    Unregister chan *Client
 }
 
 func (manager *ClientManager) Start() string {
     for {
         select {
-        case connection := <-manager.register:
-            manager.clients[connection] = true
+        case connection := <-manager.Register:
+            manager.Clients[connection] = true
             fmt.Println("Added new connection!")
             return "La conexión salió bien"
             //fmt.Println("Added new connection!"+ manager.names[*client.name])
-        case connection := <-manager.unregister:
-            if _, ok := manager.clients[connection]; ok {
-                close(connection.data)
-                delete(manager.clients, connection)
+        case connection := <-manager.Unregister:
+            if _, ok := manager.Clients[connection]; ok {
+                close(connection.Data)
+                delete(manager.Clients, connection)
                 fmt.Println("A connection has terminated!")
             }
-        case message := <-manager.broadcast:
-            for connection := range manager.clients {
+        case message := <-manager.Broadcast:
+            for connection := range manager.Clients {
                 select {
-                case connection.data <- message:
+                case connection.Data <- message:
                 default:
-                    close(connection.data)
-                    delete(manager.clients, connection)
+                    close(connection.Data)
+                    delete(manager.Clients, connection)
                 }
             }
         }
     }
 }
 
-func (manager *ClientManager) receive(client *Client) {
+func (manager *ClientManager) Receive(client *Client) {
     for {
         message := make([]byte, 4096)
-        length, err := client.socket.Read(message)
+        length, err := client.Socket.Read(message)
         if err != nil {
-            manager.unregister <- client
-            client.socket.Close()
+            manager.Unregister <- client
+            client.Socket.Close()
             break
         }
         if length > 0 {
             log.Println("RECEIVED :" + string(message))
-            manager.broadcast <- message
+            manager.Broadcast <- message
         }
     }
 }
 
-func (manager *ClientManager) send(client *Client) {
-    defer client.socket.Close()
+func (manager *ClientManager) Send(client *Client) {
+    defer client.Socket.Close()
     for {
         select {
-        case message, ok := <-client.data:
+        case message, ok := <-client.Data:
             if !ok {
                 return
             }
-            client.socket.Write(message)
+            client.Socket.Write(message)
         }
     }
 }
@@ -82,10 +82,10 @@ func StartServerMode(port string) {
     }
     log.Printf("Begin listen port : %s",port)
     manager := ClientManager{
-        clients:    make(map[*Client]bool),
-        broadcast:  make(chan []byte),
-        register:   make(chan *Client),
-        unregister: make(chan *Client),
+        Clients:    make(map[*Client]bool),
+        Broadcast:  make(chan []byte),
+        Register:   make(chan *Client),
+        Unregister: make(chan *Client),
     }
     go manager.Start()
     for {
@@ -94,9 +94,9 @@ func StartServerMode(port string) {
             log.Fatalln(error)
             continue
         }
-        client := &Client{socket: connection, data: make(chan []byte)}
-        manager.register <- client
-        go manager.receive(client)
-        go manager.send(client)
+        client := &Client{Socket: connection, Data: make(chan []byte)}
+        manager.Register <- client
+        go manager.Receive(client)
+        go manager.Send(client)
     }
 }
