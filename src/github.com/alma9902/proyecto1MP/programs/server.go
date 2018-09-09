@@ -1,32 +1,29 @@
 package main
 
 import (
-    "bufio"
-    "flag"
     "fmt"
     "net"
     "os"
-    "strings"
+    "log"
 )
 
 type ClientManager struct {
+    //map[KeyType] valueType
     clients    map[*Client]bool
+    //names      map[*Client]string
     broadcast  chan []byte
     register   chan *Client
     unregister chan *Client
 }
 
-type Client struct {
-    socket net.Conn
-    data   chan []byte
-}
-
-func (manager *ClientManager) start() {
+func (manager *ClientManager) start() string {
     for {
         select {
         case connection := <-manager.register:
             manager.clients[connection] = true
             fmt.Println("Added new connection!")
+            return "La conexión salió bien"
+            //fmt.Println("Added new connection!"+ manager.names[*client.name])
         case connection := <-manager.unregister:
             if _, ok := manager.clients[connection]; ok {
                 close(connection.data)
@@ -56,22 +53,8 @@ func (manager *ClientManager) receive(client *Client) {
             break
         }
         if length > 0 {
-            fmt.Println("RECEIVED: " + string(message))
+            log.Println("RECEIVED :" + string(message))
             manager.broadcast <- message
-        }
-    }
-}
-
-func (client *Client) receive() {
-    for {
-        message := make([]byte, 4096)
-        length, err := client.socket.Read(message)
-        if err != nil {
-            client.socket.Close()
-            break
-        }
-        if length > 0 {
-            fmt.Println("RECEIVED: " + string(message))
         }
     }
 }
@@ -89,12 +72,15 @@ func (manager *ClientManager) send(client *Client) {
     }
 }
 
-func startServerMode() {
+func startServerMode(port string) {
     fmt.Println("Starting server...")
-    listener, error := net.Listen("tcp", ":12345")
+    listener, error := net.Listen("tcp",":"+port)
+    defer listener.Close()
     if error != nil {
-        fmt.Println(error)
+        log.Fatal("socket listen port %s failed,%s", port, error)
+        os.Exit(1)
     }
+    log.Printf("Begin listen port : %s",port)
     manager := ClientManager{
         clients:    make(map[*Client]bool),
         broadcast:  make(chan []byte),
@@ -105,36 +91,12 @@ func startServerMode() {
     for {
         connection, _ := listener.Accept()
         if error != nil {
-            fmt.Println(error)
+            log.Fatalln(error)
+            continue
         }
         client := &Client{socket: connection, data: make(chan []byte)}
         manager.register <- client
         go manager.receive(client)
         go manager.send(client)
-    }
-}
-
-func startClientMode() {
-    fmt.Println("Starting client...")
-    connection, error := net.Dial("tcp", "localhost:12345")
-    if error != nil {
-        fmt.Println(error)
-    }
-    client := &Client{socket: connection}
-    go client.receive()
-    for {
-        reader := bufio.NewReader(os.Stdin)
-        message, _ := reader.ReadString('\n')
-        connection.Write([]byte(strings.TrimRight(message, "\n")))
-    }
-}
-
-func main() {
-    flagMode := flag.String("mode", "server", "start in client or server mode")
-    flag.Parse()
-    if strings.ToLower(*flagMode) == "server" {
-        startServerMode()
-    } else {
-        startClientMode()
     }
 }
