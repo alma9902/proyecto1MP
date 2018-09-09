@@ -1,4 +1,4 @@
-package main
+package programs
 
 import(
   "bufio"
@@ -27,7 +27,7 @@ func (client *Client) receive() {
         }
     }
 }
-func startClientMode(ip string, port string, name string) {
+func StartClientMode(ip string, port string, name string) {
     fmt.Println("Conectando usuario...")
     addr := strings.Join([]string{ip,port}, ":")
     connection, error := net.Dial("tcp", addr)

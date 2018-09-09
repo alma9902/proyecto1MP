@@ -1,4 +1,4 @@
-package main
+package programs
 
 import (
     "fmt"
@@ -16,7 +16,7 @@ type ClientManager struct {
     unregister chan *Client
 }
 
-func (manager *ClientManager) start() string {
+func (manager *ClientManager) Start() string {
     for {
         select {
         case connection := <-manager.register:
@@ -72,7 +72,7 @@ func (manager *ClientManager) send(client *Client) {
     }
 }
 
-func startServerMode(port string) {
+func StartServerMode(port string) {
     fmt.Println("Starting server...")
     listener, error := net.Listen("tcp",":"+port)
     defer listener.Close()
@@ -87,7 +87,7 @@ func startServerMode(port string) {
         register:   make(chan *Client),
         unregister: make(chan *Client),
     }
-    go manager.start()
+    go manager.Start()
     for {
         connection, _ := listener.Accept()
         if error != nil {

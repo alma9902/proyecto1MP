@@ -1,17 +1,19 @@
+
 package main
 
 import (
     "os"
     "flag"
     "strings"
+    "github.com/alma9902/proyecto1MP/programs"
 )
 
 func main() {
     flagMode := flag.String("mode", "server", "start in clien or server")
     flag.Parse()
     if strings.ToLower(*flagMode) == "server"{
-      startServerMode((os.Args[3]))
+      programs.StartServerMode((os.Args[3]))
     }else{
-      startClientMode((os.Args[3]),(os.Args[4]),(os.Args[5]))
+      programs.StartClientMode((os.Args[3]),(os.Args[4]),(os.Args[5]))
     }
 }
