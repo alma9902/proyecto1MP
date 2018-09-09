@@ -8,18 +8,22 @@ import (
 )
 
 type ClientManager struct {
+    //map[KeyType] valueType
     clients    map[*Client]bool
+    //names      map[*Client]string
     broadcast  chan []byte
     register   chan *Client
     unregister chan *Client
 }
 
-func (manager *ClientManager) start() {
+func (manager *ClientManager) start() string {
     for {
         select {
         case connection := <-manager.register:
             manager.clients[connection] = true
             fmt.Println("Added new connection!")
+            return "La conexión salió bien"
+            //fmt.Println("Added new connection!"+ manager.names[*client.name])
         case connection := <-manager.unregister:
             if _, ok := manager.clients[connection]; ok {
                 close(connection.data)

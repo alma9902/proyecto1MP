@@ -13,9 +13,7 @@ type Client struct {
     data   chan []byte
     name string
 }
-const(
-  StopCharacter= "\r\n\r\n"
-)
+
 func (client *Client) receive() {
     for {
         message := make([]byte, 4096)
