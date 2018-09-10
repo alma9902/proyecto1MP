@@ -10,20 +10,20 @@ import (
 type ClientManager struct {
     //map[KeyType] valueType
     Clients    map[*Client]bool
-    //names      map[*Client]string
+    Names      map[*Client]string
     Broadcast  chan []byte
     Register   chan *Client
     Unregister chan *Client
 }
 
-func (manager *ClientManager) Start() string {
+func (manager *ClientManager) Start(){
     for {
         select {
         case connection := <-manager.Register:
             manager.Clients[connection] = true
-            fmt.Println("Added new connection!")
-            return "La conexión salió bien"
-            //fmt.Println("Added new connection!"+ manager.names[*client.name])
+            //manager.Names[Client.Name]
+            //fmt.Println("Added new connection!")
+            fmt.Println("Added new connection!"+ manager.Names[connection])
         case connection := <-manager.Unregister:
             if _, ok := manager.Clients[connection]; ok {
                 close(connection.Data)
@@ -53,7 +53,7 @@ func (manager *ClientManager) Receive(client *Client) {
             break
         }
         if length > 0 {
-            log.Println("RECEIVED :" + string(message))
+            log.Println("RECEIVED from " + client.Name +" :" +string(message))
             manager.Broadcast <- message
         }
     }
@@ -68,6 +68,7 @@ func (manager *ClientManager) Send(client *Client) {
                 return
             }
             client.Socket.Write(message)
+            fmt.Println("OKAS"+client.Name)
         }
     }
 }
@@ -83,6 +84,7 @@ func StartServerMode(port string) {
     log.Printf("Begin listen port : %s",port)
     manager := ClientManager{
         Clients:    make(map[*Client]bool),
+        Names:      make(map[*Client]string),
         Broadcast:  make(chan []byte),
         Register:   make(chan *Client),
         Unregister: make(chan *Client),
@@ -94,7 +96,7 @@ func StartServerMode(port string) {
             log.Fatalln(error)
             continue
         }
-        client := &Client{Socket: connection, Data: make(chan []byte)}
+        client := &Client{Socket: connection, Data: make(chan []byte), Name: "sutanito"}
         manager.Register <- client
         go manager.Receive(client)
         go manager.Send(client)

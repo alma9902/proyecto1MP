@@ -11,7 +11,7 @@ import(
 type Client struct {
     Socket net.Conn
     Data   chan []byte
-    Name string
+    Name   string
 }
 
 func (client *Client) Receive() {
@@ -23,7 +23,7 @@ func (client *Client) Receive() {
             break
         }
         if length > 0 {
-            fmt.Println("says " + string(message))
+            fmt.Println("Yo :"+string(message))
         }
     }
 }
@@ -35,7 +35,6 @@ func StartClientMode(ip string, port string, name string) {
         fmt.Println(error)
     }
     client := &Client{Name: name, Socket: connection}
-    //client := &Client{socket: connection}
     fmt.Println(client.Name)
     go client.Receive()
     for {
