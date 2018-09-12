@@ -6,6 +6,7 @@ import(
   "net"
   "os"
   "strings"
+  "log"
 )
 
 type Client struct {
@@ -23,7 +24,7 @@ func (client *Client) Receive() {
             break
         }
         if length > 0 {
-            fmt.Println("Yo :"+string(message))
+            log.Println(" :"+string(message))
         }
     }
 }
@@ -39,7 +40,7 @@ func StartClientMode(ip string, port string, name string) {
     go client.Receive()
     for {
         reader := bufio.NewReader(os.Stdin)
-        message, _ := reader.ReadString('\n')
-        connection.Write([]byte(strings.TrimRight(message, "\n")))
+        message, _ :=reader.ReadString('\n')
+        connection.Write([]byte(client.Name+strings.TrimRight(message, "\n")))
     }
 }
