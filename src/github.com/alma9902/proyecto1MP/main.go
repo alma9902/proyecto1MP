@@ -2,6 +2,8 @@
 package main
 
 import (
+    "bufio"
+    "fmt"
     "os"
     "flag"
     "strings"
@@ -14,6 +16,15 @@ func main() {
     if strings.ToLower(*flagMode) == "server"{
       programs.StartServerMode((os.Args[3]))
     }else{
-      programs.StartClientMode((os.Args[3]),(os.Args[4]),(os.Args[5]))
+      reader := bufio.NewReader(os.Stdin)
+      // despliega las opciones que tiene el cliente
+      fmt.Println(programs.ShowOptions())
+      input, _ := reader.ReadString('\n')
+      words := strings.Split(input, " ")
+      if words[0] == "IDENTIFY" && words[1] != "" && words[1] != " "{
+          programs.StartClientMode((os.Args[3]),(os.Args[4]),words[1])
+      }else{
+        os.Exit(3)
+      }
     }
 }
