@@ -12,7 +12,6 @@ import (
 //para activar las diferentes funciones
 func ShowOptions()string{
   var s string =
-  "Lo que tiene que saber : \n"+
   "DEBE IDENTIFICARSE PRIMERO, DE LO CONTRARIO NO PODRÁ SEGUIR CONECTADO"+
   "ESCRIBA LAS SIGUIENTES PALABRAS CLAVE, AL PRINCIPIO PARA : \n"+
   "IDENTIFY      : para que te identifiques como usuario\n"+
@@ -30,23 +29,19 @@ func ShowOptions()string{
 type KeyWords int
 
 const(
-  //Season_Winter Season = 0
-  IDENTIFY      KeyWords= 0
-  STATUS        KeyWords= 1
-  USERS         KeyWords= 2
-  MESSAGE       KeyWords= 3
-  PUBLICMESAGGE KeyWords= 4
-  CREATEROOM    KeyWords= 5
-  INVITE        KeyWords= 6
-  JOINROOM      KeyWords= 7
-  ROOMESSAGE    KeyWords= 8
-  DISCONNECT    KeyWords= 9
+  STATUS        KeyWords= 0
+  USERS         KeyWords= 1
+  MESSAGE       KeyWords= 2
+  PUBLICMESAGGE KeyWords= 3
+  CREATEROOM    KeyWords= 4
+  INVITE        KeyWords= 5
+  JOINROOM      KeyWords= 6
+  ROOMESSAGE    KeyWords= 7
+  DISCONNECT    KeyWords= 8
 )
 
-func ActionsKeyWords(key KeyWords) string{
+func ActionsKeyWords(key KeyWords)string{
   switch (key) {
-  case IDENTIFY:
-    return "ok, identifica el usuario"
   case STATUS:
     return "ok, tengo que dar el status"
   case USERS:

@@ -5,16 +5,15 @@ import (
     "net"
     "os"
     "log"
+    "container/list"
 )
 
 type ClientManager struct {
-    //map[KeyType] valueType
     Clients    map[*Client]bool
     Broadcast  chan []byte
     Register   chan *Client
     Unregister chan *Client
 }
-
 func (manager *ClientManager) Start(){
     for {
         select {
@@ -40,7 +39,7 @@ func (manager *ClientManager) Start(){
     }
 }
 
-func (manager *ClientManager) Receive(client *Client) {
+func (manager *ClientManager) Receive(client *Client,listaClientes ClientsList) {
     for {
         message := make([]byte, 4096)
         length, err := client.Socket.Read(message)
@@ -50,8 +49,9 @@ func (manager *ClientManager) Receive(client *Client) {
             break
         }
         if length > 0 {
+            m := Actions(string(message), client, listaClientes)
             log.Println("RECEIVED from :" +string(message))
-            manager.Broadcast <- message
+            manager.Broadcast <- []byte(m)
         }
     }
 }
@@ -78,12 +78,14 @@ func StartServerMode(port string) {
         os.Exit(1)
     }
     log.Printf("Begin listen port : %s",port)
+    lista := ClientsList{list.New()}
     manager := ClientManager{
         Clients:    make(map[*Client]bool),
         Broadcast:  make(chan []byte),
         Register:   make(chan *Client),
         Unregister: make(chan *Client),
     }
+
     go manager.Start()
     for {
         connection, _ := listener.Accept()
@@ -93,7 +95,7 @@ func StartServerMode(port string) {
         }
         client := &Client{Socket: connection, Data: make(chan []byte)}
         manager.Register <- client
-        go manager.Receive(client)
+        go manager.Receive(client, lista)
         go manager.Send(client)
     }
 }

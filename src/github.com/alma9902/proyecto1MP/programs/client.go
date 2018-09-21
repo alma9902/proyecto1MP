@@ -11,8 +11,9 @@ import(
 
 type Client struct {
     Socket net.Conn
-    Data   chan []byte
-    Name   string
+    Data     chan []byte
+    Name     string
+    Id       string
 }
 
 func (client *Client) Receive() {
@@ -28,19 +29,18 @@ func (client *Client) Receive() {
         }
     }
 }
-func StartClientMode(ip string, port string, name string) {
+func StartClientMode(ip string, port string) {
     fmt.Println("Conectando usuario...")
     addr := strings.Join([]string{ip,port}, ":")
     connection, error := net.Dial("tcp", addr)
     if error != nil {
         fmt.Println(error)
     }
-    client := &Client{Name: name, Socket: connection}
-    fmt.Println(client.Name)
+    client := &Client{Socket: connection, Id: genXid()}
     go client.Receive()
     for {
         reader := bufio.NewReader(os.Stdin)
         message, _ :=reader.ReadString('\n')
-        connection.Write([]byte(client.Name+strings.TrimRight(message, "\n")))
+        connection.Write([]byte(client.Id+" "+strings.TrimRight(message, "\n")))
     }
 }
