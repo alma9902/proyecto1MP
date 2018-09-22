@@ -1,4 +1,4 @@
-package main
+package programs
 
 import(
   "bufio"
@@ -6,41 +6,41 @@ import(
   "net"
   "os"
   "strings"
+  "log"
 )
 
 type Client struct {
-    socket net.Conn
-    data   chan []byte
-    name string
+    Socket net.Conn
+    Data     chan []byte
+    Name     string
+    Id       string
 }
 
-func (client *Client) receive() {
+func (client *Client) Receive() {
     for {
         message := make([]byte, 4096)
-        length, err := client.socket.Read(message)
+        length, err := client.Socket.Read(message)
         if err != nil {
-            client.socket.Close()
+            client.Socket.Close()
             break
         }
         if length > 0 {
-            fmt.Println("says " + string(message))
+            log.Println(" :"+string(message))
         }
     }
 }
-func startClientMode(ip string, port string, name string) {
+func StartClientMode(ip string, port string) {
     fmt.Println("Conectando usuario...")
     addr := strings.Join([]string{ip,port}, ":")
     connection, error := net.Dial("tcp", addr)
     if error != nil {
         fmt.Println(error)
     }
-    client := &Client{name: name, socket: connection}
-    //client := &Client{socket: connection}
-    fmt.Println(client.name)
-    go client.receive()
+    client := &Client{Socket: connection, Id: genXid()}
+    go client.Receive()
     for {
         reader := bufio.NewReader(os.Stdin)
-        message, _ := reader.ReadString('\n')
-        connection.Write([]byte(strings.TrimRight(message, "\n")))
+        message, _ :=reader.ReadString('\n')
+        connection.Write([]byte(client.Id+" "+strings.TrimRight(message, "\n")))
     }
 }
