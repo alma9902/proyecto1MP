@@ -18,13 +18,6 @@ func main() {
     }else{
       //reader := bufio.NewReader(os.Stdin)
       programs.StartClientMode((os.Args[3]),(os.Args[4]))
-      // despliega las opciones que tiene el cliente
-      /*fmt.Println(programs.ShowOptions())
-      input, _ := reader.ReadString('\n')
-      words := strings.Split(input, " ")
-      if words[0] == "IDENTIFY" && words[1] != "" && words[1] != " "{
-          programs.StartClientMode((os.Args[3]),(os.Args[4]),words[1])
-      }else{
-        os.Exit(3)*/
+
     }
 }
